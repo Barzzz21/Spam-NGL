@@ -1,0 +1,2 @@
+# Spam-NGL
+Untuk pembelajaran
