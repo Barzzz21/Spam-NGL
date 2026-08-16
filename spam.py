@@ -6,68 +6,96 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-# Banner
-banner = """
-╔═══════════════════════════════════════╗
-║       🔥 SPAM-NGL-BARZ 🔥             ║
-║    Created by : @Barxzzz              ║
-║    Github    : github.com/BarzzID     ║
-╚═══════════════════════════════════════╝
+# Warna
+G = '\033[92m'
+R = '\033[91m'
+Y = '\033[93m'
+C = '\033[96m'
+B = '\033[94m'
+W = '\033[0m'
+
+os.system('clear' if os.name == 'posix' else 'cls')
+
+banner = f"""
+{C}╔═══════════════════════════════════════╗
+║       {W}🔥 SPAM-NGL-BARZ V2 🔥{C}             ║
+║    {W}Created by : @Barxzzz{C}              ║
+║    {W}Github    : github.com/BarzzID{C}     ║
+╚═══════════════════════════════════════╝{W}
 """
 
 print(banner)
 
-# Input user
-target = input("Target (username NGL): ")
-pesan = input("Pesan: ")
-jumlah = int(input("Jumlah: "))
-menit = int(input("Menit: "))
+target = input(f"{G}[?] Target (username NGL): {W}")
+pesan = input(f"{G}[?] Pesan: {W}")
+jumlah = int(input(f"{G}[?] Jumlah: {W}"))
+menit = int(input(f"{G}[?] Menit: {W}"))
 
-# Konfigurasi
 url = "https://ngl.link/api/submit"
 headers = {
-    "User-Agent": "Mozilla/5.0 (Android 12; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0",
-    "Accept": "application/json",
-    "Content-Type": "application/x-www-form-urlencoded"
+    "User-Agent": "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Origin": "https://ngl.link",
+    "Referer": "https://ngl.link/"
 }
 
-stop_spam = False
+stop_event = threading.Event()
 counter = 0
+success = 0
+failed = 0
+lock = threading.Lock()
 
-def spam():
-    global counter
-    while not stop_spam and counter < jumlah:
+def send_spam():
+    global counter, success, failed
+    while not stop_event.is_set():
+        with lock:
+            if counter >= jumlah:
+                stop_event.set()
+                break
+            counter += 1
         try:
             data = {
                 "username": target,
                 "question": pesan,
-                "deviceId": "android_" + str(time.time())[:10]
+                "deviceId": f"android_{int(time.time()*1000)}"
             }
-            r = requests.post(url, data=data, headers=headers, timeout=5)
+            r = requests.post(url, data=data, headers=headers, timeout=10)
             if r.status_code == 200:
-                counter += 1
-                print(f"[✓] Spam ke-{counter} terkirim")
+                with lock:
+                    success += 1
+                print(f"{G}[✓] Spam ke-{counter} berhasil{W}")
             else:
-                print(f"[✗] Gagal ({r.status_code})")
+                with lock:
+                    failed += 1
+                print(f"{R}[✗] Spam ke-{counter} gagal (HTTP {r.status_code}){W}")
         except Exception as e:
-            print(f"[!] Error: {e}")
-        time.sleep(0.1)
+            with lock:
+                failed += 1
+            print(f"{R}[!] Error: {str(e)[:30]}{W}")
+        time.sleep(0.05)
 
-# Jalankan spam dalam thread
-print(f"\n[+] Mulai spam ke @{target}")
-print(f"[+] Pesan: {pesan}")
-print(f"[+] Target: {jumlah} spam dalam {menit} menit\n")
+print(f"\n{G}[+] Memulai spam ke @{target}{W}")
+print(f"{G}[+] Pesan: {Y}{pesan}{W}")
+print(f"{G}[+] Target: {Y}{jumlah} spam{W} dalam {Y}{menit} menit{W}\n")
 
 threads = []
-for _ in range(10):  # 10 thread paralel
-    t = threading.Thread(target=spam)
+for _ in range(20):
+    t = threading.Thread(target=send_spam)
     t.daemon = True
     t.start()
     threads.append(t)
 
-# Timer otomatis stop
 timeout = menit * 60
 time.sleep(timeout)
-stop_spam = True
+stop_event.set()
 
-print(f"\n[✓] Selesai! Total {counter} spam terkirim.")
+for t in threads:
+    t.join(timeout=1)
+
+print(f"\n{G}═══════════════════════════════════════{W}")
+print(f"{G}[✓] SELESAI!{W}")
+print(f"{G}[✓] Berhasil : {Y}{success}{W}")
+print(f"{R}[✗] Gagal   : {Y}{failed}{W}")
+print(f"{G}[✓] Total   : {Y}{success + failed}{W}")
+print(f"{G}═══════════════════════════════════════{W}")
