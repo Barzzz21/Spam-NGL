@@ -1,20 +1,24 @@
-# 🔥 SPAM-NGL-BARZ
+# 🔥 SPAM-NGL-BARZ V2
 
-Tools spam pesan ke NGL (nobody gives a link) via Termux.
+Tools spam pesan ke NGL 100% work via Termux.
 
 ## Fitur:
-- Input target username
+- Target username
 - Pesan kustom
 - Jumlah spam
-- Durasi spam (menit)
-- Multi-thread (cepat)
-- Auto-stop
+- Durasi (menit)
+- 20 thread paralel
+- Auto stop
+- Statistik berhasil/gagal
 
 ## Instalasi:
+```bash
 pkg update && pkg upgrade
 pkg install git
 pkg install bash
-pkg install python
-git clone https://github.com/Barzzz21/Spam-NGL.git
-cd Spam-NGL
-bash spam.sh
+pkg install python 
+-git clone
+https://github.com/BarzzID/SPAM-NGL-BARZ
+-cd SPAM-NGL-BARZ
+-bash spam.sh
+-python spam.py
