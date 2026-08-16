@@ -19,6 +19,6 @@ pkg install bash
 pkg install python 
 -git clone
 https://github.com/BarzzID/SPAM-NGL-BARZ
--cd SPAM-NGL-BARZ
+-cd spam-ngl
 -bash spam.sh
 -python spam.py
